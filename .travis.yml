@@ -2,10 +2,17 @@
 #osx_image: xcode6.4
 language: objective-c
 
+
 before_install:
-- git submodule update --init --recursive
+  - git submodule update --init --recursive
+
+env:
+  - TERM=dumb
 
 script:
-- xctool -project DTRichTextEditor.xcodeproj -scheme "Demo App" clean build -sdk iphonesimulator -arch x86_64
-- xctool -project DTRichTextEditor.xcodeproj -scheme "DTRichTextEditor (iOS)" clean build  -sdk iphonesimulator -arch x86_64
-- appledoc -o /tmp .
+  - ./gradlew DemoApp
+  - ./gradlew DTRichTextEditor
+  - ./gradlew appledoc -PbuildBranch-$TRAVIS_BRANCH
+
+after_success:	
+  - ./gradlew documentationUpload -PuploadUser=$FTP_USER -PuploadPassword=$FTP_PASSWORD -PbuildBranch-$TRAVIS_BRANCH
